@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  find_company_db:
+    restart: always
+    container_name: find_company_db
+    image: pgrouting/pgrouting
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "54038:5432"
+    networks:
+      - find_company_network
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_HOST=${DB_HOST}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+
+  find_company_web:
+    restart: always
+    build: ./src
+    container_name: find_company_web
+    networks:
+      - find_company_network
+    command: >
+      sh -c "python manage.py collectstatic --noinput &&
+             python manage.py makemigrations &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./src:/src
+      - ./src/core:/src/core
+      - ./src/static:/src/static
+      - ./src/media:/src/media
+    ports:
+      - "8004:8000"
+    env_file:
+      - .env
+    depends_on:
+      - find_company_db
+
+volumes:
+  postgres_data:
+    driver: local
+  static:
+    driver: local
+  media:
+    driver: local
+  web:
+    driver: local
+
+networks:
+  find_company_network:
+    driver: bridge
