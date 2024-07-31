@@ -29,10 +29,10 @@ services:
       sh -c "python manage.py collectstatic --noinput &&
              python manage.py makemigrations &&
              python manage.py migrate &&
-             gunicorn --bind 0.0.0.0:8000 --timeout 300 --worker-class=gevent --worker-connections=1000 --workers=5 core.wsgi"
+             gunicorn --bind 0.0.0.0:8000 --timeout 300 --worker-class=gevent --worker-connections=1000 --workers=5 find_company.wsgi"
     volumes:
       - ./src:/src
-      - ./src/core:/src/core
+      - ./src/find_company:/src/find_company
       - ./src/static:/src/static
       - ./src/media:/src/media
     ports:
